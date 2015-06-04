@@ -63,21 +63,7 @@ class Retry
     {
         $this->callable = $callable;
         $this->retryDelay = $retryDelay ?: new DelayMilliseconds(300);
-
-        if (is_string($exceptions)) {
-            $exceptions = array($exceptions);
-        }
-
-        if (is_array($exceptions)) {
-            if (count($exceptions) == 0) {
-                throw new \InvalidArgumentException('Exceptions given as array but is empty');
-            }
-        } else {
-            throw new \InvalidArgumentException('Exceptions needs to be string or array');
-        }
-
-        $this->exceptions = $exceptions;
-
+        $this->exceptions = (array) $exceptions;
         $this->maxRetries = $maxRetries;
     }
 
@@ -111,7 +97,7 @@ class Retry
             try {
                 return call_user_func_array($this->callable, $args);
             } catch (\Exception $e) {
-                // Catching all then checking what exception it is
+                // Catching all, then checking what exception it is
                 $found = false;
 
                 foreach ($this->exceptions as $retryableException) {
@@ -122,7 +108,7 @@ class Retry
                 }
 
                 // Not a retryable exception, throw again
-                if (false === $found) {
+                if (!$found) {
                     throw $e;
                 }
 
