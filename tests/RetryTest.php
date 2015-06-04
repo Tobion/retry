@@ -116,7 +116,7 @@ class RetryTest extends \PHPUnit_Framework_TestCase
     /**
      * Get callable for testing
      *
-     * @param integer $succeedAfterCalls How many times does it fail before suceeding?
+     * @param int $succeedAfterCalls How many times does it fail before suceeding?
      *
      * @return callable
      */

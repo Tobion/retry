@@ -26,21 +26,21 @@ class Retry
     /**
      * Maximum number of retries.
      *
-     * @var integer
+     * @var int
      */
     private $maxRetries;
 
     /**
      * Delay between retries in milliseconds.
      *
-     * @var integer
+     * @var callable
      */
     private $retryDelay;
 
     /**
      * Actual number of retries.
      *
-     * @var integer|null
+     * @var int|null
      */
     private $retries;
 
@@ -56,23 +56,13 @@ class Retry
      *
      * @param callable      $callable   The operation to execute that can be retried on failure.
      * @param string|array  $exceptions Exceptions to catch and retry
-     * @param integer       $maxRetries Maximum number of retries.
+     * @param int           $maxRetries Maximum number of retries.
      * @param callable|null $retryDelay Delay between retries in milliseconds
      */
     public function __construct(callable $callable, $exceptions = 'Exception', $maxRetries = 3, callable $retryDelay = null)
     {
-        if (!is_callable($callable)) {
-            throw new \InvalidArgumentException('Callable parameter needs to be a callable');
-        }
-
         $this->callable = $callable;
-
-        // Defaulting to the class with default values
-        if (null === $retryDelay) {
-            $this->retryDelay = new DelayMilliseconds();
-        } else {
-            $this->retryDelay = $retryDelay;
-        }
+        $this->retryDelay = $retryDelay ?: new DelayMilliseconds(300);
 
         if (is_string($exceptions)) {
             $exceptions = array($exceptions);
@@ -94,7 +84,7 @@ class Retry
     /**
      * Returns the number of retries used.
      *
-     * @return integer|null The number of retries used or null if wrapper has not been invoked yet
+     * @return int|null The number of retries used or null if wrapper has not been invoked yet
      */
     public function getRetries()
     {
