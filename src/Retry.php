@@ -3,7 +3,7 @@
 namespace Tobion\Retry;
 
 /**
- * Wraps a operation, represented as a callable, in retry logic.
+ * Wraps an operation, represented as a callable, in retry logic.
  *
  * The class implements the retry logic for you by re-executing your callable
  * in case of temporary errors where retrying the failed operation, after a
