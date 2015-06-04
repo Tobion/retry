@@ -33,6 +33,11 @@
             "Tobion\\Retry\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tobion\\Retry\\Tests\\": "tests/"
+        }
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "0.1.x-dev"
