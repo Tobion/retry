@@ -64,10 +64,10 @@ class RetryTest extends \PHPUnit_Framework_TestCase
 
     public function testRetrySucceedsWithTwoRetryableExceptions()
     {
-        $exceptions = array($this->retryableException, 'RuntimeException');
+        $exceptions = [$this->retryableException, 'RuntimeException'];
 
         $retry = new Retry(
-            array(new RetryCallableExample(2), 'useTwoExceptions'),
+            [new RetryCallableExample(2), 'useTwoExceptions'],
             $exceptions,
             5
         );
@@ -92,7 +92,7 @@ class RetryTest extends \PHPUnit_Framework_TestCase
     public function testNoRetryOnGenericError()
     {
         $retry = new Retry(
-            array(new RetryCallableExample(), 'retryableErrorFollowedByGenericError'),
+            [new RetryCallableExample(), 'retryableErrorFollowedByGenericError'],
             $this->retryableException,
             5
         );
@@ -124,7 +124,7 @@ class RetryTest extends \PHPUnit_Framework_TestCase
     {
         $callable = new RetryCallableExample($succeedAfterCalls);
 
-        return array($callable, 'succeedAsConfigured');
+        return [$callable, 'succeedAsConfigured'];
     }
 }
 

@@ -47,17 +47,17 @@ class Retry
     /**
      * Exceptions to catch and retry on.
      *
-     * @var array
+     * @var string[]
      */
-    private $exceptions = array();
+    private $exceptions = [];
 
     /**
      * Constructor to wrap a callable.
      *
-     * @param callable      $callable   The operation to execute that can be retried on failure.
-     * @param string|array  $exceptions Exceptions to catch and retry
-     * @param int           $maxRetries Maximum number of retries.
-     * @param callable|null $retryDelay Delay between retries in milliseconds
+     * @param callable        $callable   The operation to execute that can be retried on failure
+     * @param string|string[] $exceptions Exceptions to catch and retry on (by default every exception)
+     * @param int             $maxRetries Maximum number of retries
+     * @param callable|null   $retryDelay Delay between retries in milliseconds
      */
     public function __construct(callable $callable, $exceptions = 'Exception', $maxRetries = 3, callable $retryDelay = null)
     {
