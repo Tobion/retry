@@ -52,15 +52,15 @@ class Retry
     private $exceptionCallback;
 
     /**
-     * Constructor to wrap a callable.
+     * Constructor to wrap a callable operation.
      *
      * @param callable        $operation         The operation to execute that should be retried on failure
      * @param string|string[] $exceptions        Exceptions to catch and retry on (by default every exception)
      * @param int             $maxRetries        Maximum number of retries
      * @param callable|null   $exceptionCallback The callback to execute when an exception is caught and the operation is about to be retried.
-     *                                           By default, it delays retries by 300 milliseconds.
+     *                                           By default, it delays retries by 300 milliseconds. The callback receives the exception as parameter.
      */
-    public function __construct(callable $operation, $exceptions = 'Exception', $maxRetries = 3, callable $exceptionCallback = null)
+    public function __construct(callable $operation, $exceptions = 'Exception', $maxRetries = 2, callable $exceptionCallback = null)
     {
         $this->operation = $operation;
         $this->exceptions = (array) $exceptions;
