@@ -3,7 +3,7 @@
 namespace Tobion\Retry;
 
 /**
- * Wraps a operation, represented as a callable, in retry logic.
+ * Wraps an operation, represented as a callable, in retry logic.
  *
  * The class implements the retry logic for you by re-executing your callable
  * in case of temporary errors where retrying the failed operation, after a
@@ -21,80 +21,57 @@ class Retry
      *
      * @var callable
      */
-    private $callable;
+    private $operation;
 
     /**
      * Maximum number of retries.
      *
-     * @var integer
+     * @var int
      */
     private $maxRetries;
 
     /**
-     * Delay between retries in milliseconds.
-     *
-     * @var integer
-     */
-    private $retryDelay;
-
-    /**
      * Actual number of retries.
      *
-     * @var integer|null
+     * @var int|null
      */
     private $retries;
 
     /**
      * Exceptions to catch and retry on.
      *
-     * @var array
+     * @var string[]
      */
-    private $exceptions = array();
+    private $exceptions = [];
 
     /**
-     * Constructor to wrap a callable.
+     * Callback when an exception is caught.
      *
-     * @param callable      $callable   The operation to execute that can be retried on failure.
-     * @param string|array  $exceptions Exceptions to catch and retry
-     * @param integer       $maxRetries Maximum number of retries.
-     * @param callable|null $retryDelay Delay between retries in milliseconds
+     * @var callable
      */
-    public function __construct(callable $callable, $exceptions = 'Exception', $maxRetries = 3, callable $retryDelay = null)
+    private $exceptionCallback;
+
+    /**
+     * Constructor to wrap a callable operation.
+     *
+     * @param callable        $operation         The operation to execute that should be retried on failure
+     * @param string|string[] $exceptions        Exceptions to catch and retry on (by default every exception)
+     * @param int             $maxRetries        Maximum number of retries
+     * @param callable|null   $exceptionCallback The callback to execute when an exception is caught and the operation is about to be retried.
+     *                                           By default, it delays retries by 300 milliseconds. The callback receives the exception as parameter.
+     */
+    public function __construct(callable $operation, $exceptions = 'Exception', $maxRetries = 2, callable $exceptionCallback = null)
     {
-        if (!is_callable($callable)) {
-            throw new \InvalidArgumentException('Callable parameter needs to be a callable');
-        }
-
-        $this->callable = $callable;
-
-        // Defaulting to the class with default values
-        if (null === $retryDelay) {
-            $this->retryDelay = new DelayMilliseconds();
-        } else {
-            $this->retryDelay = $retryDelay;
-        }
-
-        if (is_string($exceptions)) {
-            $exceptions = array($exceptions);
-        }
-
-        if (is_array($exceptions)) {
-            if (count($exceptions) == 0) {
-                throw new \InvalidArgumentException('Exceptions given as array but is empty');
-            }
-        } else {
-            throw new \InvalidArgumentException('Exceptions needs to be string or array');
-        }
-
-        $this->exceptions = $exceptions;
-
+        $this->operation = $operation;
+        $this->exceptions = (array) $exceptions;
         $this->maxRetries = $maxRetries;
+        $this->exceptionCallback = $exceptionCallback ?: new DelayMilliseconds(300);
     }
 
     /**
      * Returns the number of retries used.
      *
-     * @return integer|null The number of retries used or null if wrapper has not been invoked yet
+     * @return int|null The number of retries used or null if wrapper has not been invoked yet
      */
     public function getRetries()
     {
@@ -102,9 +79,10 @@ class Retry
     }
 
     /**
-     * Executes the callable and retries it in case of a configured exception happening
+     * Executes the wrapped callable and retries it in case of a configured exception happening.
      *
-     * Will execute again if configured exceptions happen. Other exceptions will be ignored and run up the stack.
+     * The callable is only re-executed for exceptions that are a subclass of one of the configured exceptions. Other exceptions will be ignored
+     * and just bubble upwards immediately.
      *
      * All arguments given will be passed through to the wrapped callable.
      *
@@ -119,9 +97,9 @@ class Retry
 
         do {
             try {
-                return call_user_func_array($this->callable, $args);
+                return call_user_func_array($this->operation, $args);
             } catch (\Exception $e) {
-                // Catching all then checking what exception it is
+                // Catching all, then checking what exception it is
                 $found = false;
 
                 foreach ($this->exceptions as $retryableException) {
@@ -132,17 +110,18 @@ class Retry
                 }
 
                 // Not a retryable exception, throw again
-                if (false === $found) {
+                if (!$found) {
                     throw $e;
                 }
 
                 if ($this->retries < $this->maxRetries) {
-                    // Haven't exceeded retry count yet, so retry with delay
-                    $this->retries++;
+                    // Haven't exceeded retry count yet, so execute callback with exception as argument
+                    // This could add some retry delay or do other custom logic like logging
+                    call_user_func($this->exceptionCallback, $e);
 
-                    call_user_func($this->retryDelay);
+                    $this->retries++;
                 } else {
-                    // Too many retries, throw exception
+                    // Too many retries, rethrow last caught exception
                     throw $e;
                 }
             }

@@ -3,7 +3,7 @@
 namespace Tobion\Retry;
 
 /**
- * Delays execution in milliseconds
+ * Invokable class that delays execution by given number of milliseconds with usleep.
   *
  * @author Tobias Schultze <http://tobion.de>
  * @author Christian Riesen <http://christianriesen.com>
@@ -13,22 +13,22 @@ class DelayMilliseconds
     /**
      * Delay in milliseconds.
      *
-     * @var integer
+     * @var int
      */
     private $milliseconds;
 
     /**
-     * Constructor to wrap a callable.
+     * Constructor.
      *
-     * @param integer $milliseconds Delay in milliseconds
+     * @param int $milliseconds Delay in milliseconds
      */
-    public function __construct($milliseconds = 300)
+    public function __construct($milliseconds)
     {
         $this->milliseconds = $milliseconds;
     }
 
     /**
-     * Wait the configured amount of milliseconds
+     * Wait the configured amount of milliseconds.
      *
      * @return void
      */
