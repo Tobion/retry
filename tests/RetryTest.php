@@ -106,6 +106,23 @@ class RetryTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testExceptionCallback()
+    {
+        $retry = new Retry($this->getCallable(1), $this->retryableException, 1, function (RetryableException $e) {
+            $this->assertSame('Retryable error', $e->getMessage(), 'Callback receives caught exception as argument');
+
+            throw new \RuntimeException('Exception from callback');
+        });
+
+        try {
+            $retry();
+            $this->fail('A failed exception callback should make the retry fail');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('Exception from callback', $e->getMessage(), 'Callback exception is passed on');
+            $this->assertSame(0, $retry->getRetries(), 'A failed exception callback does not increase the retry counter');
+        }
+    }
+
     public function testInvokeWithParams()
     {
         $retry = new Retry(__NAMESPACE__ . '\RetryCallableExample::staticMethodWithParams');
@@ -173,8 +190,8 @@ class RetryCallableExample
             return 'return-value';
         }
 
-        if ($this->executionCount == 1) {
-            throw new \RuntimeException('Only once retryable error');
+        if ($this->executionCount % 2) {
+            throw new \RuntimeException('Runtime error');
         }
 
         throw new RetryableException('Retryable error');

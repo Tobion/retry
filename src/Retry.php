@@ -79,9 +79,10 @@ class Retry
     }
 
     /**
-     * Executes the callable and retries it in case of a configured exception happening
+     * Executes the wrapped callable and retries it in case of a configured exception happening.
      *
-     * Will execute again if configured exceptions happen. Other exceptions will be ignored and run up the stack.
+     * The callable is only re-executed for exceptions that are a subclass of one of the configured exceptions. Other exceptions will be ignored
+     * and just bubble upwards immediately.
      *
      * All arguments given will be passed through to the wrapped callable.
      *
@@ -114,12 +115,13 @@ class Retry
                 }
 
                 if ($this->retries < $this->maxRetries) {
-                    // Haven't exceeded retry count yet, so retry with delay
-                    $this->retries++;
-
+                    // Haven't exceeded retry count yet, so execute callback with exception as argument
+                    // This could add some retry delay or do other custom logic like logging
                     call_user_func($this->exceptionCallback, $e);
+
+                    $this->retries++;
                 } else {
-                    // Too many retries, throw exception
+                    // Too many retries, rethrow last caught exception
                     throw $e;
                 }
             }
