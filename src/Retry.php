@@ -21,7 +21,7 @@ class Retry
      *
      * @var callable
      */
-    private $callable;
+    private $operation;
 
     /**
      * Maximum number of retries.
@@ -29,13 +29,6 @@ class Retry
      * @var int
      */
     private $maxRetries;
-
-    /**
-     * Delay between retries in milliseconds.
-     *
-     * @var callable
-     */
-    private $retryDelay;
 
     /**
      * Actual number of retries.
@@ -52,19 +45,27 @@ class Retry
     private $exceptions = [];
 
     /**
+     * Callback when an exception is caught.
+     *
+     * @var callable
+     */
+    private $exceptionCallback;
+
+    /**
      * Constructor to wrap a callable.
      *
-     * @param callable        $callable   The operation to execute that can be retried on failure
-     * @param string|string[] $exceptions Exceptions to catch and retry on (by default every exception)
-     * @param int             $maxRetries Maximum number of retries
-     * @param callable|null   $retryDelay Delay between retries in milliseconds
+     * @param callable        $operation         The operation to execute that should be retried on failure
+     * @param string|string[] $exceptions        Exceptions to catch and retry on (by default every exception)
+     * @param int             $maxRetries        Maximum number of retries
+     * @param callable|null   $exceptionCallback The callback to execute when an exception is caught and the operation is about to be retried.
+     *                                           By default, it delays retries by 300 milliseconds.
      */
-    public function __construct(callable $callable, $exceptions = 'Exception', $maxRetries = 3, callable $retryDelay = null)
+    public function __construct(callable $operation, $exceptions = 'Exception', $maxRetries = 3, callable $exceptionCallback = null)
     {
-        $this->callable = $callable;
-        $this->retryDelay = $retryDelay ?: new DelayMilliseconds(300);
+        $this->operation = $operation;
         $this->exceptions = (array) $exceptions;
         $this->maxRetries = $maxRetries;
+        $this->exceptionCallback = $exceptionCallback ?: new DelayMilliseconds(300);
     }
 
     /**
@@ -95,7 +96,7 @@ class Retry
 
         do {
             try {
-                return call_user_func_array($this->callable, $args);
+                return call_user_func_array($this->operation, $args);
             } catch (\Exception $e) {
                 // Catching all, then checking what exception it is
                 $found = false;
@@ -116,7 +117,7 @@ class Retry
                     // Haven't exceeded retry count yet, so retry with delay
                     $this->retries++;
 
-                    call_user_func($this->retryDelay);
+                    call_user_func($this->exceptionCallback, $e);
                 } else {
                     // Too many retries, throw exception
                     throw $e;

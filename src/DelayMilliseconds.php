@@ -3,7 +3,7 @@
 namespace Tobion\Retry;
 
 /**
- * Delays execution with usleep.
+ * Invokable class that delays execution by given number of milliseconds with usleep.
   *
  * @author Tobias Schultze <http://tobion.de>
  * @author Christian Riesen <http://christianriesen.com>
