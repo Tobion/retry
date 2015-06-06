@@ -24,48 +24,23 @@ class RetryingCallable
     private $operation;
 
     /**
-     * Maximum number of retries.
+     * An array of callbacks to execute when an exception is caught.
      *
-     * @var int
+     * @var callable[]
      */
-    private $maxRetries;
-
-    /**
-     * Actual number of retries.
-     *
-     * @var int|null
-     */
-    private $retries;
-
-    /**
-     * Exceptions to catch and retry on.
-     *
-     * @var string[]
-     */
-    private $exceptions = [];
-
-    /**
-     * Callback when an exception is caught.
-     *
-     * @var callable
-     */
-    private $exceptionCallback;
+    private $exceptionHandlers = [];
 
     /**
      * Constructor to wrap a callable operation.
      *
-     * @param callable        $operation         The operation to execute that should be retried on failure
-     * @param string|string[] $exceptions        Exceptions to catch and retry on (by default every exception)
-     * @param int             $maxRetries        Maximum number of retries
-     * @param callable|null   $exceptionCallback The callback to execute when an exception is caught and the operation is about to be retried.
-     *                                           By default, it delays retries by 300 milliseconds. The callback receives the exception as parameter.
+     * @param callable   $operation         The operation to execute that should be retried on failure
+     * @param callable[] $exceptionHandlers An array of callbacks to execute when an exception is caught.
+     *                                      Each callback receives the exception as parameter and can then decide what to do.
      */
-    public function __construct(callable $operation, $exceptions = 'Exception', $maxRetries = 2, callable $exceptionCallback = null)
+    public function __construct(callable $operation, array $exceptionHandlers)
     {
         $this->operation = $operation;
-        $this->exceptions = (array) $exceptions;
-        $this->maxRetries = $maxRetries;
-        $this->exceptionCallback = $exceptionCallback ?: new DelayMilliseconds(300);
+        $this->exceptionHandlers = $exceptionHandlers;
     }
 
     /**
@@ -92,37 +67,14 @@ class RetryingCallable
      */
     public function __invoke()
     {
-        $this->retries = 0;
         $args = func_get_args();
 
         do {
             try {
                 return call_user_func_array($this->operation, $args);
             } catch (\Exception $e) {
-                // Catching all, then checking what exception it is
-                $found = false;
-
-                foreach ($this->exceptions as $retryableException) {
-                    if ($e instanceof $retryableException) {
-                        $found = true;
-                        break;
-                    }
-                }
-
-                // Not a retryable exception, throw again
-                if (!$found) {
-                    throw $e;
-                }
-
-                if ($this->retries < $this->maxRetries) {
-                    // Haven't exceeded retry count yet, so execute callback with exception as argument
-                    // This could add some retry delay or do other custom logic like logging
-                    call_user_func($this->exceptionCallback, $e);
-
-                    $this->retries++;
-                } else {
-                    // Too many retries, rethrow last caught exception
-                    throw $e;
+                foreach ($this->exceptionHandlers as $callable) {
+                    call_user_func($callable, $e);
                 }
             }
         } while (true);

@@ -2,6 +2,10 @@
 
 namespace Tobion\Retry;
 
+use Tobion\Retry\ExceptionHandler\RetryableExceptions;
+use Tobion\Retry\ExceptionHandler\MaxRetries;
+use Tobion\Retry\ExceptionHandler\DelayMilliseconds;
+
 /**
  * Builder for configuring the retry logic.
  *
@@ -14,7 +18,7 @@ class RetryingCallableBuilder
      *
      * @var string[]
      */
-    private $exceptions = ['Exception'];
+    private $exceptions = [];
 
     /**
      * Maximum number of retries.
@@ -88,7 +92,19 @@ class RetryingCallableBuilder
      */
     public function getDecorator(callable $operation)
     {
-        return new RetryingCallable($operation, $this->exceptions, $this->maxRetries);
+        $handlers = [];
+
+        if ($this->exceptions) {
+            $handlers[] = new RetryableExceptions($this->exceptions);
+        }
+
+        $handlers[] = new MaxRetries($this->maxRetries);
+
+        if ($this->retryDelay > 0) {
+            $handlers[] = new DelayMilliseconds($this->retryDelay);
+        }
+
+        return new RetryingCallable($operation, $handlers);
     }
 
     /**
