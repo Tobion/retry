@@ -3,11 +3,11 @@
 namespace Tobion\Retry\ExceptionHandler;
 
 /**
- * Invokable class that will rethrow the caught exception unless it a subclass of one of the configured exceptions.
+ * Invokable class that will rethrow the caught exception unless it an instance of one of the configured exceptions.
  *
  * @author Tobias Schultze <http://tobion.de>
  */
-class RetryableExceptions
+class IgnoreSpecificExceptions
 {
     /**
      * Exceptions.
@@ -27,7 +27,7 @@ class RetryableExceptions
     }
 
     /**
-     * It rethrows the caught exception unless it a subclass of one of the configured exceptions.
+     * It rethrows the caught exception unless it an instance of one of the configured exceptions.
      *
      * @param \Exception $e The caught exception
      *

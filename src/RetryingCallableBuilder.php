@@ -2,10 +2,10 @@
 
 namespace Tobion\Retry;
 
-use Tobion\Retry\ExceptionHandler\DelegatingStack;
-use Tobion\Retry\ExceptionHandler\RetryableExceptions;
-use Tobion\Retry\ExceptionHandler\MaxRetries;
 use Tobion\Retry\ExceptionHandler\DelayMilliseconds;
+use Tobion\Retry\ExceptionHandler\DelegatingStack;
+use Tobion\Retry\ExceptionHandler\IgnoreSpecificExceptions;
+use Tobion\Retry\ExceptionHandler\IgnoreUntilMaxReached;
 
 /**
  * Builder for configuring the retry logic.
@@ -96,10 +96,10 @@ class RetryingCallableBuilder
         $handlers = [];
 
         if ($this->exceptions) {
-            $handlers[] = new RetryableExceptions($this->exceptions);
+            $handlers[] = new IgnoreSpecificExceptions($this->exceptions);
         }
 
-        $handlers[] = new MaxRetries($this->maxRetries);
+        $handlers[] = new IgnoreUntilMaxReached($this->maxRetries);
 
         if ($this->retryDelay > 0) {
             $handlers[] = new DelayMilliseconds($this->retryDelay);

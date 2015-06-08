@@ -3,7 +3,7 @@
 namespace Tobion\Retry;
 
 /**
- * Entry point for the retry logic.
+ * Entry point to add retry logic.
  *
  * @author Tobias Schultze <http://tobion.de>
  */

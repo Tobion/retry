@@ -3,27 +3,27 @@
 namespace Tobion\Retry\ExceptionHandler;
 
 /**
- * Invokable class that counts the number of invocations and will rethrow the exception when max retries is reached.
+ * Invokable class that limits the number of ignored exceptions to a configured maximum.
   *
  * @author Tobias Schultze <http://tobion.de>
  */
-class MaxRetries
+class IgnoreUntilMaxReached
 {
     /**
-     * Maximum number of retries.
+     * Number of exception occurrences that are still allowed.
      *
      * @var int
      */
-    private $leftRetries;
+    private $leftOccurrences;
 
     /**
      * Constructor.
      *
-     * @param int $maxRetries Maximum number of retries
+     * @param int $maxOccurrences Maximum number of exceptions that are ignored
      */
-    public function __construct($maxRetries)
+    public function __construct($maxOccurrences)
     {
-        $this->leftRetries = $maxRetries;
+        $this->leftOccurrences = $maxOccurrences;
     }
 
     /**
@@ -35,10 +35,10 @@ class MaxRetries
      */
     public function __invoke(\Exception $e)
     {
-        if ($this->leftRetries > 0) {
-            $this->leftRetries--;
+        if ($this->leftOccurrences > 0) {
+            $this->leftOccurrences--;
         } else {
-            // Too many retries, rethrow last caught exception
+            // Too many exceptions, rethrow last caught exception
             throw $e;
         }
     }
