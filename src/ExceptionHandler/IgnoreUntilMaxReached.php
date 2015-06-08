@@ -10,6 +10,13 @@ namespace Tobion\Retry\ExceptionHandler;
 class IgnoreUntilMaxReached
 {
     /**
+     * Maximum number of exception occurrences.
+     *
+     * @var int
+     */
+    private $maxOccurrences;
+
+    /**
      * Number of exception occurrences that are still allowed.
      *
      * @var int
@@ -23,7 +30,7 @@ class IgnoreUntilMaxReached
      */
     public function __construct($maxOccurrences)
     {
-        $this->leftOccurrences = $maxOccurrences;
+        $this->leftOccurrences = $this->maxOccurrences = $maxOccurrences;
     }
 
     /**
@@ -38,6 +45,9 @@ class IgnoreUntilMaxReached
         if ($this->leftOccurrences > 0) {
             $this->leftOccurrences--;
         } else {
+            // Reset to original state in case the exception is caught, so it starts from the beginning.
+            $this->leftOccurrences = $this->maxOccurrences;
+
             // Too many exceptions, rethrow last caught exception
             throw $e;
         }
