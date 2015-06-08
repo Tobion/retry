@@ -22,12 +22,16 @@ class Retry
     /**
      * Executes the passed callable with the default retry behavior.
      *
+     * Extra arguments are passed to the operation.
+     *
      * @param callable $operation The operation to execute
      *
      * @return mixed The return value of the passed operation
      */
     public static function retry(callable $operation)
     {
-        return self::createBuilder()->retry($operation);
+        $retryingCallable = self::createBuilder()->getDecorator($operation);
+
+        return call_user_func_array($retryingCallable, array_slice(func_get_args(), 1));
     }
 }

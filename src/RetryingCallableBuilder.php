@@ -111,6 +111,8 @@ class RetryingCallableBuilder
     /**
      * Executes the passed callable with the configured retry behavior.
      *
+     * Extra arguments are passed to the operation.
+     *
      * @param callable $operation The operation to execute
      *
      * @return mixed The return value of the passed operation
@@ -119,6 +121,6 @@ class RetryingCallableBuilder
     {
         $retryingCallable = $this->getDecorator($operation);
 
-        return $retryingCallable();
+        return call_user_func_array($retryingCallable, array_slice(func_get_args(), 1));
     }
 }
