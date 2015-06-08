@@ -85,6 +85,38 @@ class RetryingCallableBuilder
     }
 
     /**
+     * Returns the exceptions to catch and retry on.
+     *
+     * If empty, every exception will trigger the retry logic.
+     *
+     * @return string[] Array of exception classes/interfaces
+     */
+    public function getRetryableExceptions()
+    {
+        return $this->exceptions;
+    }
+
+    /**
+     * Returns the maximum number of retries.
+     *
+     * @return int Maximum number of retries
+     */
+    public function getMaxRetries()
+    {
+        return $this->maxRetries;
+    }
+
+    /**
+     * Returns the delay between retries in milliseconds.
+     *
+     * @return int Delay in milliseconds
+     */
+    public function getRetryDelay()
+    {
+        return $this->retryDelay;
+    }
+
+    /**
      * Returns a callable that decorates the given operation to add the retry logic.
      *
      * @param callable $operation The operation that should be retried on failure
