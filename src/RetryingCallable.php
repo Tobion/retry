@@ -5,12 +5,6 @@ namespace Tobion\Retry;
 /**
  * Wraps an operation, represented as a callable, in retry logic.
  *
- * The class implements the retry logic for you by re-executing your callable
- * in case of temporary errors where retrying the failed operation, after a
- * short delay usually resolves the problem. Just wrap your operation in this
- * class and invoke it. You can also pass arguments when invoking the wrapper
- * which will be passed through to the underlying callable.
- *
  * @author Tobias Schultze <http://tobion.de>
  * @author Christian Riesen <http://christianriesen.com>
  */
@@ -61,16 +55,13 @@ class RetryingCallable
     }
 
     /**
-     * Executes the wrapped callable and retries it in case of a configured exception happening.
-     *
-     * The callable is only re-executed for exceptions that are a subclass of one of the configured exceptions. Other exceptions will be ignored
-     * and just bubble upwards immediately.
+     * Executes the wrapped callable and retries it until the exception handler also throws an exception.
      *
      * All arguments given will be passed through to the wrapped callable.
      *
      * @return mixed The return value of the wrapped callable
      *
-     * @throws \Exception When retries are exceeded or retry is not configured for it
+     * @throws \Exception When the exception handler also throws an exception.
      */
     public function __invoke()
     {
