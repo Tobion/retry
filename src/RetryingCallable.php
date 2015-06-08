@@ -24,29 +24,36 @@ class RetryingCallable
     private $operation;
 
     /**
-     * An array of callbacks to execute when an exception is caught.
+     * Actual number of retries.
      *
-     * @var callable[]
+     * @var int
      */
-    private $exceptionHandlers = [];
+    private $retries = 0;
+
+    /**
+     * The callback to execute when an exception is caught.
+     *
+     * @var callable
+     */
+    private $exceptionHandler;
 
     /**
      * Constructor to wrap a callable operation.
      *
-     * @param callable   $operation         The operation to execute that should be retried on failure
-     * @param callable[] $exceptionHandlers An array of callbacks to execute when an exception is caught.
-     *                                      Each callback receives the exception as parameter and can then decide what to do.
+     * @param callable $operation        The operation to execute that should be retried on failure
+     * @param callable $exceptionHandler A callback to execute when an exception is caught. The callback receives the exception
+     *                                   as parameter and can then decide what to do.
      */
-    public function __construct(callable $operation, array $exceptionHandlers)
+    public function __construct(callable $operation, callable $exceptionHandler)
     {
         $this->operation = $operation;
-        $this->exceptionHandlers = $exceptionHandlers;
+        $this->exceptionHandler = $exceptionHandler;
     }
 
     /**
      * Returns the number of retries used.
      *
-     * @return int|null The number of retries used or null if wrapper has not been invoked yet
+     * @return int The number of retries used
      */
     public function getRetries()
     {
@@ -67,15 +74,16 @@ class RetryingCallable
      */
     public function __invoke()
     {
+        $this->retries = 0;
         $args = func_get_args();
 
         do {
             try {
                 return call_user_func_array($this->operation, $args);
             } catch (\Exception $e) {
-                foreach ($this->exceptionHandlers as $callable) {
-                    call_user_func($callable, $e);
-                }
+                call_user_func($this->exceptionHandler, $e);
+
+                $this->retries++;
             }
         } while (true);
     }

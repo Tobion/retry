@@ -14,21 +14,7 @@ class MaxRetries
      *
      * @var int
      */
-    private $maxRetries;
-
-    /**
-     * Actual number of retries.
-     *
-     * @var int
-     */
-    private $retries = 0;
-
-    /**
-     * Actual number of retries.
-     *
-     * @var int|null
-     */
-    private $lastRetries;
+    private $leftRetries;
 
     /**
      * Constructor.
@@ -37,17 +23,7 @@ class MaxRetries
      */
     public function __construct($maxRetries)
     {
-        $this->maxRetries = $maxRetries;
-    }
-
-    /**
-     * Returns the number of retries used.
-     *
-     * @return int|null The number of retries used or null if wrapper has not been invoked yet
-     */
-    public function getLastRetries()
-    {
-        return $this->lastRetries;
+        $this->leftRetries = $maxRetries;
     }
 
     /**
@@ -59,13 +35,10 @@ class MaxRetries
      */
     public function __invoke(\Exception $e)
     {
-        if ($this->retries < $this->maxRetries) {
-            $this->retries++;
+        if ($this->leftRetries > 0) {
+            $this->leftRetries--;
         } else {
             // Too many retries, rethrow last caught exception
-            $this->lastRetries = $this->retries;
-            $this->retries = 0;
-
             throw $e;
         }
     }

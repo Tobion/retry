@@ -2,6 +2,7 @@
 
 namespace Tobion\Retry;
 
+use Tobion\Retry\ExceptionHandler\DelegatingStack;
 use Tobion\Retry\ExceptionHandler\RetryableExceptions;
 use Tobion\Retry\ExceptionHandler\MaxRetries;
 use Tobion\Retry\ExceptionHandler\DelayMilliseconds;
@@ -88,7 +89,7 @@ class RetryingCallableBuilder
      *
      * @param callable $operation The operation that should be retried on failure
      *
-     * @return callable The retrying callable
+     * @return RetryingCallable A retrying callable which you need to invoke
      */
     public function getDecorator(callable $operation)
     {
@@ -104,7 +105,7 @@ class RetryingCallableBuilder
             $handlers[] = new DelayMilliseconds($this->retryDelay);
         }
 
-        return new RetryingCallable($operation, $handlers);
+        return new RetryingCallable($operation, new DelegatingStack($handlers));
     }
 
     /**
