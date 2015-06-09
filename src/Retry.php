@@ -34,4 +34,11 @@ class Retry
 
         return call_user_func_array($retryingCallable, array_slice(func_get_args(), 1));
     }
+
+    /**
+     * This class cannot be instantiated.
+     */
+    private function __construct()
+    {
+    }
 }
