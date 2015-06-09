@@ -32,4 +32,7 @@ By default it will catch all exceptions
 Development
 -----------
 
-To run tests, install [composer](https://getcomposer.org/), run `composer install` (or wherever you have composer installed) then run `vendor/phpunit/phpunit/phpunit` 
+To run tests, you need [Composer](https://getcomposer.org/) and then execute:
+
+     $ composer install
+     $ vendor/bin/phpunit

@@ -1,6 +1,3 @@
-# Composer
-/composer.phar
-/composer.lock
-/vendor
-
-/build
+composer.lock
+phpunit.xml
+vendor/
