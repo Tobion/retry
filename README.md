@@ -1,38 +1,54 @@
 Retry
 =====
 
-PHP class for retrying code pieces in case of exceptions.
+PHP library for retrying code, e.g. HTTP requests or database transactions, in case of failures.
 
 [![Build Status](https://travis-ci.org/Tobion/retry.svg)](https://travis-ci.org/Tobion/retry)
 
-Born out of a need of [Tobias Schultze](https://github.com/Tobion) and [Christian Riesen](https://github.com/ChristianRiesen) for a project at [Liip](http://www.liip.ch)
-which then found a specific [merge request into Doctrine](https://github.com/doctrine/dbal/pull/718/files). We
-thought this works just as well on a generic basis.
+Installation
+------------
+
+    $ composer require tobion/retry
 
 Usage
 -----
 
-Make sure it's autoloaded. Wrap the code you want retried with the class and execute it.
-
 ```php
 use Tobion\Retry\Retry;
 
-// Anon function
-$retry = new Retry(function () { return 42; });
+$callableThatMightFail = function (int $arg1, int $arg2): int {
+    if (random_int(1, 2) % 2) {
+        throw new \RuntimeException('Sudden error');
+    }
 
-// Outputs 42
-echo $retry();
+    return $arg1 + $arg2;
+};
 
+// Allows you to call the callable with parameters and retry its execution in case an exception is thrown.
+// You can access the return value of the callable (3 in this case).
+$returnValue = Retry::retry($callableThatMightFail, 1, 2);
+
+// By default:
+// - The callable is retried twice (i.e. max three executions). If it still fails, the last error is rethrown.
+// - Retries have a 300 milliseconds delay between them.
+// - Every \Throwable will trigger the retry logic, i.e. both \Exception and \Error.
+// You can adjust the retry logic like this:
+$retryingCallable = Retry::configure()
+    ->setMaxRetries(5)
+    ->setDelayInMs(100)
+    ->setRetryableExceptions(\RuntimeException::class) // other failures like \TypeError will not be retried
+    ->decorate($callableThatMightFail)
+;
+$returnValue = $retryingCallable(1, 2);
+// $retryingCallable just decorates the original callable and can be used like it.
+// To find out how often it had to retry, you can use:
+$retryingCallable->getRetries();
 ```
 
-You can configure the exceptions to listen to for retries, the number of retries and the time between retries (in milliseconds) at construction time of the Retry class.
+Contributing
+------------
 
-By default it will catch all exceptions
+To run tests:
 
-Development
------------
-
-To run tests, you need [Composer](https://getcomposer.org/) and then execute:
-
-     $ composer install
-     $ vendor/bin/phpunit
+    $ composer install
+    $ vendor/bin/phpunit

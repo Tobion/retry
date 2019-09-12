@@ -3,36 +3,38 @@
 namespace Tobion\Retry;
 
 /**
- * Entry point to add retry logic.
+ * Simple retry entry point providing shortcuts.
  *
  * @author Tobias Schultze <http://tobion.de>
  */
-class Retry
+final class Retry
 {
     /**
      * Returns a builder to configure custom retry logic.
-     *
-     * @return RetryingCallableBuilder Builder to configure retry logic
      */
-    public static function createBuilder()
+    public static function configure(): RetryConfigurator
     {
-        return new RetryingCallableBuilder();
+        return new RetryConfigurator();
     }
 
     /**
-     * Executes the passed callable with the default retry behavior.
-     *
-     * Extra arguments are passed to the operation.
-     *
-     * @param callable $operation The operation to execute
-     *
-     * @return mixed The return value of the passed operation
+     * Returns a callable that decorates the given operation that should be retried on failure.
      */
-    public static function retry(callable $operation)
+    public static function decorate(callable $callable): RetryingCallable
     {
-        $retryingCallable = self::createBuilder()->getDecorator($operation);
+        return (new RetryConfigurator())->decorate($callable);
+    }
 
-        return call_user_func_array($retryingCallable, array_slice(func_get_args(), 1));
+    /**
+     * Executes the passed callable and its arguments with the default retry behavior.
+     *
+     * @see RetryConfigurator
+     *
+     * @return mixed The return value of the passed callable
+     */
+    public static function retry(callable $callable, ...$arguments)
+    {
+        return (new RetryConfigurator())->retry($callable, ...$arguments);
     }
 
     /**

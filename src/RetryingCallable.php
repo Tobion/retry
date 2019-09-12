@@ -8,25 +8,19 @@ namespace Tobion\Retry;
  * @author Tobias Schultze <http://tobion.de>
  * @author Christian Riesen <http://christianriesen.com>
  */
-class RetryingCallable
+final class RetryingCallable
 {
     /**
-     * The operation to execute that can be retried on failure.
-     *
      * @var callable
      */
     private $operation;
 
     /**
-     * Actual number of retries.
-     *
      * @var int
      */
     private $retries = 0;
 
     /**
-     * The callback to execute when an exception is caught.
-     *
      * @var callable
      */
     private $exceptionHandler;
@@ -46,10 +40,8 @@ class RetryingCallable
 
     /**
      * Returns the number of retries used.
-     *
-     * @return int The number of retries used
      */
-    public function getRetries()
+    public function getRetries(): int
     {
         return $this->retries;
     }
@@ -61,17 +53,16 @@ class RetryingCallable
      *
      * @return mixed The return value of the wrapped callable
      *
-     * @throws \Exception When the exception handler also throws an exception.
+     * @throws \Throwable When the exception handler also throws an exception.
      */
-    public function __invoke()
+    public function __invoke(...$arguments)
     {
         $this->retries = 0;
-        $args = func_get_args();
 
         do {
             try {
-                return call_user_func_array($this->operation, $args);
-            } catch (\Exception $e) {
+                return call_user_func_array($this->operation, $arguments);
+            } catch (\Throwable $e) {
                 call_user_func($this->exceptionHandler, $e);
 
                 $this->retries++;
