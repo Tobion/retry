@@ -1,6 +1,6 @@
 <?php
 
-namespace Tobion\Retry;
+namespace Tobion\Retry\ExceptionHandler;
 
 /**
  * Invokable class that delays execution by given number of milliseconds with usleep.
@@ -8,31 +8,19 @@ namespace Tobion\Retry;
  * @author Tobias Schultze <http://tobion.de>
  * @author Christian Riesen <http://christianriesen.com>
  */
-class DelayMilliseconds
+final class DelayMilliseconds
 {
     /**
-     * Delay in milliseconds.
-     *
      * @var int
      */
     private $milliseconds;
 
-    /**
-     * Constructor.
-     *
-     * @param int $milliseconds Delay in milliseconds
-     */
-    public function __construct($milliseconds)
+    public function __construct(int $milliseconds)
     {
         $this->milliseconds = $milliseconds;
     }
 
-    /**
-     * Wait the configured amount of milliseconds.
-     *
-     * @return void
-     */
-    public function __invoke()
+    public function __invoke(): void
     {
         if ($this->milliseconds <= 0) {
             return;
