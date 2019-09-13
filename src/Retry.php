@@ -32,9 +32,9 @@ final class Retry
      *
      * @return mixed The return value of the passed callable
      */
-    public static function retry(callable $callable, ...$arguments)
+    public static function call(callable $callable, ...$arguments)
     {
-        return (new RetryConfigurator())->retry($callable, ...$arguments);
+        return (new RetryConfigurator())->call($callable, ...$arguments);
     }
 
     /**

@@ -26,7 +26,7 @@ $callableThatMightFail = function (int $arg1, int $arg2): int {
 
 // Allows you to call the callable with parameters and retry its execution in case an exception is thrown.
 // You can access the return value of the callable (3 in this case).
-$returnValue = Retry::retry($callableThatMightFail, 1, 2);
+$returnValue = Retry::call($callableThatMightFail, 1, 2);
 
 // By default:
 // - The callable is retried twice (i.e. max three executions). If it still fails, the last error is rethrown.

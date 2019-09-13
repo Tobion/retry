@@ -82,7 +82,7 @@ class RetryFunctionalityTest extends TestCase
     {
         $start = microtime(true);
 
-        $returnValue = (new RetryConfigurator(2, 500))->retry($this->getCallable(2));
+        $returnValue = (new RetryConfigurator(2, 500))->call($this->getCallable(2));
 
         $elapsedTimeInMs = (microtime(true) - $start) * 1000;
 

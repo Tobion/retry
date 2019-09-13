@@ -141,7 +141,7 @@ class RetryConfigurator
      *
      * @return mixed The return value of the passed callable
      */
-    public function retry(callable $operation, ...$arguments)
+    public function call(callable $operation, ...$arguments)
     {
         $retryingCallable = $this->decorate($operation);
 
