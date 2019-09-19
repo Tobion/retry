@@ -12,7 +12,7 @@ use Tobion\Retry\ExceptionHandler\RethrowOnMaxRetries;
  *
  * @author Tobias Schultze <http://tobion.de>
  */
-class RetryConfigurator
+final class RetryConfigurator
 {
     /**
      * @var string[]
@@ -27,20 +27,18 @@ class RetryConfigurator
     /**
      * @var int
      */
-    private $delayInMs;
+    private $delayInMs = 0;
 
     /**
      * Configures the retry logic. By default:
      *
      * - The callable is retried twice (i.e. max three executions). If it still fails, the last error is rethrown.
-     * - Retries have a 300 milliseconds delay between them.
-     * - Every \Throwable will trigger the retry logic, i.e. both exceptions and errors.
+     * - Retries have a no delay between them.
+     * - Every \Throwable will trigger the retry logic, i.e. both \Exception and \Error.
      */
-    public function __construct(int $maxRetries = 2, int $delayInMs = 300, string $exceptionToRetry = \Throwable::class)
+    public function __construct(int $maxRetries = 2)
     {
         $this->maxRetries = $maxRetries;
-        $this->delayInMs = $delayInMs;
-        $this->setRetryableExceptions($exceptionToRetry);
     }
 
     /**
@@ -53,7 +51,7 @@ class RetryConfigurator
      *
      * @return $this
      */
-    public function setRetryableExceptions(string $exceptionClass, string ...$moreExceptionClasses): self
+    public function retryOnSpecificExceptions(string $exceptionClass, string ...$moreExceptionClasses): self
     {
         array_unshift($moreExceptionClasses, $exceptionClass);
         $this->retryableExceptionClasses = $moreExceptionClasses;
@@ -66,7 +64,7 @@ class RetryConfigurator
      *
      * @return $this
      */
-    public function setMaxRetries(int $maxRetries): self
+    public function maxRetries(int $maxRetries): self
     {
         $this->maxRetries = $maxRetries;
 
@@ -80,39 +78,11 @@ class RetryConfigurator
      *
      * @return $this
      */
-    public function setDelayInMs(int $milliseconds): self
+    public function delayInMs(int $milliseconds): self
     {
         $this->delayInMs = $milliseconds;
 
         return $this;
-    }
-
-    /**
-     * Returns the exception classes/interfaces to catch and retry on.
-     *
-     * If empty, every exception will trigger the retry logic.
-     *
-     * @return string[]
-     */
-    public function getRetryableExceptions(): array
-    {
-        return $this->retryableExceptionClasses;
-    }
-
-    /**
-     * Returns the maximum number of retries.
-     */
-    public function getMaxRetries(): int
-    {
-        return $this->maxRetries;
-    }
-
-    /**
-     * Returns the delay between retries in milliseconds.
-     */
-    public function getDelayInMs(): int
-    {
-        return $this->delayInMs;
     }
 
     /**
@@ -123,7 +93,7 @@ class RetryConfigurator
         $handlers = [];
 
         // we can skip the handler in this default case
-        if ([\Throwable::class] !== $this->retryableExceptionClasses) {
+        if ([] !== $this->retryableExceptionClasses && [\Throwable::class] !== $this->retryableExceptionClasses) {
             $handlers[] = new RethrowNonRetryableExceptions(...$this->retryableExceptionClasses);
         }
 

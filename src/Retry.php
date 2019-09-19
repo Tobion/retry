@@ -2,6 +2,8 @@
 
 namespace Tobion\Retry;
 
+use Doctrine\DBAL\Exception\RetryableException;
+
 /**
  * Simple retry entry point providing shortcuts.
  *
@@ -18,23 +20,17 @@ final class Retry
     }
 
     /**
-     * Returns a callable that decorates the given operation that should be retried on failure.
-     */
-    public static function decorate(callable $callable): RetryingCallable
-    {
-        return (new RetryConfigurator())->decorate($callable);
-    }
-
-    /**
-     * Executes the passed callable and its arguments with the default retry behavior.
-     *
-     * @see RetryConfigurator
+     * Executes the passed callable and its arguments with the a preconfigured retry behavior suitable for Doctrine database transactions.
      *
      * @return mixed The return value of the passed callable
      */
-    public static function call(callable $callable, ...$arguments)
+    public static function onDoctrineExceptionWith2Retries300MsDelay(callable $callable, ...$arguments)
     {
-        return (new RetryConfigurator())->call($callable, ...$arguments);
+        return self::configure()
+            ->maxRetries(2)
+            ->delayInMs(300)
+            ->retryOnSpecificExceptions(RetryableException::class)
+            ->call($callable, ...$arguments);
     }
 
     /**

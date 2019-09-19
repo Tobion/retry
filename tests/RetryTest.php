@@ -13,14 +13,4 @@ class RetryTest extends TestCase
     {
         $this->assertInstanceOf(RetryConfigurator::class, Retry::configure());
     }
-
-    public function testDecorate(): void
-    {
-        $this->assertInstanceOf(RetryingCallable::class, Retry::decorate(function () { return 42; }));
-    }
-
-    public function testCallPassesOnArgumentsAndReturnsCallableReturnValue(): void
-    {
-        $this->assertSame(42, Retry::call(function (int $arg1, int $arg2) { return $arg1 + $arg2; }, 40, 2));
-    }
 }

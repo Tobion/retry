@@ -42,7 +42,7 @@ class RetryFunctionalityTest extends TestCase
     public function testRetrySucceedsWithTwoRetryableExceptions(): void
     {
         $retry = (new RetryConfigurator(4))
-            ->setRetryableExceptions(TestExceptionToRetry::class,TestDifferentException::class)
+            ->retryOnSpecificExceptions(TestExceptionToRetry::class,TestDifferentException::class)
             ->decorate([new TestExamplesToRetry(4), 'useTwoExceptions'])
         ;
 
@@ -65,7 +65,7 @@ class RetryFunctionalityTest extends TestCase
 
     public function testNoRetryWhenNotRetryableError(): void
     {
-        $retry = (new RetryConfigurator(10, 300, TestExceptionToRetry::class))->decorate(
+        $retry = (new RetryConfigurator(10))->retryOnSpecificExceptions(TestExceptionToRetry::class)->decorate(
             [new TestExamplesToRetry(), 'retryableErrorFollowedByOtherError']
         );
 
@@ -82,7 +82,7 @@ class RetryFunctionalityTest extends TestCase
     {
         $start = microtime(true);
 
-        $returnValue = (new RetryConfigurator(2, 500))->call($this->getCallable(2));
+        $returnValue = (new RetryConfigurator(2))->delayInMs(500)->call($this->getCallable(2));
 
         $elapsedTimeInMs = (microtime(true) - $start) * 1000;
 
