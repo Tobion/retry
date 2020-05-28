@@ -51,4 +51,4 @@ Contributing
 To run tests:
 
     $ composer install
-    $ vendor/bin/phpunit
+    $ vendor/bin/simple-phpunit
