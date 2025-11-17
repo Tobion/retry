@@ -15,17 +15,17 @@ use Tobion\Retry\ExceptionHandler\RethrowOnMaxRetries;
 final class RetryConfigurator
 {
     /**
-     * @var string[]
+     * @var class-string<\Throwable>[]
      */
     private $retryableExceptionClasses = [];
 
     /**
-     * @var int
+     * @var int<0,max>
      */
     private $maxRetries;
 
     /**
-     * @var int
+     * @var int<0,max>
      */
     private $delayInMs = 0;
 
@@ -35,6 +35,8 @@ final class RetryConfigurator
      * - The callable is retried twice (i.e. max three executions). If it still fails, the last error is rethrown.
      * - Retries have a no delay between them.
      * - Every \Throwable will trigger the retry logic, i.e. both \Exception and \Error.
+     *
+     * @param int<0,max> $maxRetries
      */
     public function __construct(int $maxRetries = 2)
     {
@@ -49,6 +51,9 @@ final class RetryConfigurator
      *
      * For example, for handling database deadlocks and timeouts with Doctrine, it makes sense to configure `\Doctrine\DBAL\Exception\RetryableException`.
      *
+     * @param class-string<\Throwable> $exceptionClass
+     * @param class-string<\Throwable> $moreExceptionClasses
+     *
      * @return $this
      */
     public function retryOnSpecificExceptions(string $exceptionClass, string ...$moreExceptionClasses): self
@@ -61,6 +66,8 @@ final class RetryConfigurator
 
     /**
      * Sets the maximum number of retries.
+     *
+     * @param int<0,max> $maxRetries
      *
      * @return $this
      */
@@ -76,6 +83,8 @@ final class RetryConfigurator
      *
      * Set to zero to disable delay.
      *
+     * @param int<0,max> $milliseconds
+     *
      * @return $this
      */
     public function delayInMs(int $milliseconds): self
@@ -87,6 +96,12 @@ final class RetryConfigurator
 
     /**
      * Returns a callable that decorates the given operation that should be retried on failure.
+     *
+     * @template TResult
+     *
+     * @param callable():TResult $operation
+     *
+     * @return RetryingCallable<TResult>
      */
     public function decorate(callable $operation): RetryingCallable
     {
@@ -109,7 +124,12 @@ final class RetryConfigurator
     /**
      * Executes the passed callable and its arguments with the configured retry behavior.
      *
-     * @return mixed The return value of the passed callable
+     * @template TResult
+     *
+     * @param callable():TResult $operation
+     * @param mixed              $arguments
+     *
+     * @return TResult The return value of the passed callable
      */
     public function call(callable $operation, ...$arguments)
     {
