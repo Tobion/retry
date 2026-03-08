@@ -121,12 +121,10 @@ class TestExamplesToRetry
 {
     public const RETURN_VALUE = 'return-value';
 
-    private $succeedAfterCalls = 0;
-    private $executionCount = 0;
+    private int $executionCount = 0;
 
-    public function __construct(int $succeedAfterCalls = 0)
+    public function __construct(private readonly int $succeedAfterCalls = 0)
     {
-        $this->succeedAfterCalls = $succeedAfterCalls;
     }
 
     public function succeedAsConfigured(): string

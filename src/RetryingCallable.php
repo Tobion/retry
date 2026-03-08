@@ -20,7 +20,7 @@ final class RetryingCallable
     /**
      * @var int<0,max>
      */
-    private $retries = 0;
+    private int $retries = 0;
 
     /**
      * @var callable(\Throwable):void
@@ -59,7 +59,7 @@ final class RetryingCallable
      *
      * @throws \Throwable When the exception handler also throws an exception.
      */
-    public function __invoke(...$arguments)
+    public function __invoke(mixed ...$arguments): mixed
     {
         $this->retries = 0;
 

@@ -7,21 +7,24 @@ namespace Tobion\Retry\ExceptionHandler;
  *
  * @author Tobias Schultze <http://tobion.de>
  */
-final class RethrowNonRetryableExceptions
+final readonly class RethrowNonRetryableExceptions
 {
     /**
-     * @var string[]
+     * @var class-string<\Throwable>[]
      */
-    private $exceptions;
+    private array $exceptionClasses;
 
+    /**
+     * @param class-string<\Throwable> ...$exceptionClasses
+     */
     public function __construct(string ...$exceptionClasses)
     {
-        $this->exceptions = $exceptionClasses;
+        $this->exceptionClasses = $exceptionClasses;
     }
 
     public function __invoke(\Throwable $e): void
     {
-        foreach ($this->exceptions as $retryableException) {
+        foreach ($this->exceptionClasses as $retryableException) {
             if ($e instanceof $retryableException) {
                 return;
             }

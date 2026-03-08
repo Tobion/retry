@@ -7,12 +7,12 @@ namespace Tobion\Retry\ExceptionHandler;
   *
  * @author Tobias Schultze <http://tobion.de>
  */
-final class DelegatingStack
+final readonly class DelegatingStack
 {
     /**
      * @var callable[]
      */
-    private $exceptionHandlers = [];
+    private array $exceptionHandlers;
 
     public function __construct(callable ...$exceptionHandlers)
     {

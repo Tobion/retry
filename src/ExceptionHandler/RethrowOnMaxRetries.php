@@ -11,15 +11,8 @@ namespace Tobion\Retry\ExceptionHandler;
  */
 final class RethrowOnMaxRetries
 {
-    /**
-     * @var int
-     */
-    private $maxRetries;
-
-    /**
-     * @var int
-     */
-    private $leftRetries;
+    private int $maxRetries;
+    private int $leftRetries;
 
     public function __construct(int $maxRetries)
     {

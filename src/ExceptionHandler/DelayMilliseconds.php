@@ -8,16 +8,10 @@ namespace Tobion\Retry\ExceptionHandler;
  * @author Tobias Schultze <http://tobion.de>
  * @author Christian Riesen <http://christianriesen.com>
  */
-final class DelayMilliseconds
+final readonly class DelayMilliseconds
 {
-    /**
-     * @var int
-     */
-    private $milliseconds;
-
-    public function __construct(int $milliseconds)
+    public function __construct(private int $milliseconds)
     {
-        $this->milliseconds = $milliseconds;
     }
 
     public function __invoke(): void

@@ -17,17 +17,17 @@ final class RetryConfigurator
     /**
      * @var class-string<\Throwable>[]
      */
-    private $retryableExceptionClasses = [];
+    private array $retryableExceptionClasses = [];
 
     /**
      * @var int<0,max>
      */
-    private $maxRetries;
+    private int $maxRetries;
 
     /**
      * @var int<0,max>
      */
-    private $delayInMs = 0;
+    private int $delayInMs = 0;
 
     /**
      * Configures the retry logic. By default:
@@ -52,7 +52,7 @@ final class RetryConfigurator
      * For example, for handling database deadlocks and timeouts with Doctrine, it makes sense to configure `\Doctrine\DBAL\Exception\RetryableException`.
      *
      * @param class-string<\Throwable> $exceptionClass
-     * @param class-string<\Throwable> $moreExceptionClasses
+     * @param class-string<\Throwable> ...$moreExceptionClasses
      *
      * @return $this
      */
@@ -127,11 +127,10 @@ final class RetryConfigurator
      * @template TResult
      *
      * @param callable():TResult $operation
-     * @param mixed              $arguments
      *
      * @return TResult The return value of the passed callable
      */
-    public function call(callable $operation, ...$arguments)
+    public function call(callable $operation, mixed ...$arguments): mixed
     {
         $retryingCallable = $this->decorate($operation);
 

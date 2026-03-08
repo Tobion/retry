@@ -3,8 +3,6 @@ Retry
 
 PHP library for retrying code, e.g. HTTP requests or database transactions, in case of failures.
 
-[![Build Status](https://travis-ci.org/Tobion/retry.svg)](https://travis-ci.org/Tobion/retry)
-
 Installation
 ------------
 

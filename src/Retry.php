@@ -24,7 +24,7 @@ final class Retry
      *
      * @return mixed The return value of the passed callable
      */
-    public static function onDoctrineExceptionWith2Retries300MsDelay(callable $callable, ...$arguments)
+    public static function onDoctrineExceptionWith2Retries300MsDelay(callable $callable, mixed ...$arguments): mixed
     {
         return self::configure()
             ->maxRetries(2)
