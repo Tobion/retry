@@ -7,30 +7,32 @@ namespace Tobion\Retry;
  *
  * @author Tobias Schultze <http://tobion.de>
  * @author Christian Riesen <http://christianriesen.com>
+ *
+ * @template TResult
  */
 final class RetryingCallable
 {
     /**
-     * @var callable
+     * @var callable():TResult
      */
     private $operation;
 
     /**
-     * @var int
+     * @var int<0,max>
      */
     private $retries = 0;
 
     /**
-     * @var callable
+     * @var callable(\Throwable):void
      */
     private $exceptionHandler;
 
     /**
      * Constructor to wrap a callable operation.
      *
-     * @param callable $operation        The operation to execute that should be retried on failure
-     * @param callable $exceptionHandler A callback to execute when an exception is caught. The callback receives the exception
-     *                                   as parameter and can then decide what to do.
+     * @param callable():TResult        $operation        The operation to execute that should be retried on failure
+     * @param callable(\Throwable):void $exceptionHandler A callback to execute when an exception is caught. The callback receives the exception
+     *                                                    as parameter and can then decide what to do.
      */
     public function __construct(callable $operation, callable $exceptionHandler)
     {
@@ -40,6 +42,8 @@ final class RetryingCallable
 
     /**
      * Returns the number of retries used.
+     *
+     * @return int<0,max>
      */
     public function getRetries(): int
     {
@@ -51,7 +55,7 @@ final class RetryingCallable
      *
      * All arguments given will be passed through to the wrapped callable.
      *
-     * @return mixed The return value of the wrapped callable
+     * @return TResult The return value of the wrapped callable
      *
      * @throws \Throwable When the exception handler also throws an exception.
      */
