@@ -9,11 +9,12 @@ namespace Tobion\Retry;
  * @author Christian Riesen <http://christianriesen.com>
  *
  * @template TResult
+ * @template TArgs
  */
 final class RetryingCallable
 {
     /**
-     * @var callable():TResult
+     * @var callable(TArgs):TResult
      */
     private $operation;
 
@@ -30,7 +31,7 @@ final class RetryingCallable
     /**
      * Constructor to wrap a callable operation.
      *
-     * @param callable():TResult        $operation        The operation to execute that should be retried on failure
+     * @param callable(TArgs):TResult   $operation        The operation to execute that should be retried on failure
      * @param callable(\Throwable):void $exceptionHandler A callback to execute when an exception is caught. The callback receives the exception
      *                                                    as parameter and can then decide what to do.
      */
@@ -54,6 +55,8 @@ final class RetryingCallable
      * Executes the wrapped callable and retries it until the exception handler also throws an exception.
      *
      * All arguments given will be passed through to the wrapped callable.
+     *
+     * @param TArgs ...$arguments
      *
      * @return TResult The return value of the wrapped callable
      *
