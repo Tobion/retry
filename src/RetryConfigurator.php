@@ -98,8 +98,9 @@ final class RetryConfigurator
      * Returns a callable that decorates the given operation that should be retried on failure.
      *
      * @template TResult
+     * @template TArgs
      *
-     * @param callable():TResult $operation
+     * @param callable(TArgs):TResult $operation
      *
      * @return RetryingCallable<TResult>
      */
@@ -125,8 +126,9 @@ final class RetryConfigurator
      * Executes the passed callable and its arguments with the configured retry behavior.
      *
      * @template TResult
+     * @template TArgs
      *
-     * @param callable():TResult $operation
+     * @param callable(TArgs):TResult $operation
      *
      * @return TResult The return value of the passed callable
      */
